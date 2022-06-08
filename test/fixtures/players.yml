@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  tokenAuth: MyString
+  sessionActive: false
+  tokenTable: MyString
+  symbol: MyString
+  password: MyString
+  email: MyString
+
+two:
+  name: MyString
+  tokenAuth: MyString
+  sessionActive: false
+  tokenTable: MyString
+  symbol: MyString
+  password: MyString
+  email: MyString

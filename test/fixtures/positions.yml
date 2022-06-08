@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  numberMove: 1
+  statusPosition: false
+  symbolPlayer: MyString
+
+two:
+  numberMove: 1
+  statusPosition: false
+  symbolPlayer: MyString
