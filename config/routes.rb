@@ -6,9 +6,13 @@ Rails.application.routes.draw do
 
       resources :players
       resources :table do
-        resources :positions, only: [:show]
+        #resources :positions, only: [:show]
+        resources :positions, only: [:index]
+        #resources :positions, to: 'positions#update', only: [:update]
+        resources :players, to: 'players#assigned'
       end
-      resources :positions, except: [:show] 
+      resources :positions
+      #resources :positions, except: [:update] 
       # Defines the root path route ("/")
       # root "articles#index"
       post 'authenticate', to: 'authentication#create'

@@ -3,9 +3,9 @@ module Api
         class PlayersController < ApplicationController
             include ActionController::HttpAuthentication::Token
 
-            before_action :authentication, only: [:show, :update, :destroy]
+            before_action :authentication, only: [:show, :update, :destroy,:assigned]
             before_action :setPlayer, only: [:show, :update, :destroy]
-
+            before_action :assignedPlayers, only: [:assigned]
             #GET All
             def index
                 @players = Player.all
@@ -17,7 +17,7 @@ module Api
             def create
                 @player = Player.new(playerParams)
                 if @player.save 
-                    render status:200, json:{player:@player}
+                    render status:200, json:{player_id:@player.id}
                 else
                     render status:400, json:{messaje:@player.errors.details}
                 end
@@ -25,11 +25,6 @@ module Api
         
             #GET One
             def show
-                #if
-                    #LLamo a la function loging del back
-                    # Si sale todo ok dejo seguir
-                    # Si no render 401 error
-                #end
                 render status:200, json:{player:@player} 
             end
         
@@ -51,25 +46,47 @@ module Api
                 end
             end
         
+            def assigned
+                render status:200, json:{players: @players}
+            end
             #Metodos
             private
         
             #Strong params: Me sirve para permitir única mente los parámetros que yo quiera en las request
             def playerParams
-                params.require(:player).permit(:name,:tokenAuth,:email,:symbol,:password,:score,:tokenTable,:sessionActive)
+                params.require(:player).permit(:name,:tokenAuth,:email,:symbol,:password,:score,:tokenTable,:sessionActive,:table_id)
             end
         
             #Recuperar el player de la base de datos    
             def setPlayer
                 @player = Player.find_by(id: params[:id])
-                if @player.blank?
+                if @player.nil?
                     render status:400, json:{messaje:"Player not found #{params[:id]}"}
                     false
                 end
+                #Object player to render
+                @player = {
+                    id: @player.id,
+                    name: @player.name,
+                    symbol: @player.symbol,
+                }
             end 
 
             def authentication
                 return authenticate_player
+            end
+
+            def assignedPlayers
+                @players = []
+                @table = Table.find_by(id: params[:table_id])
+                                                
+                if@table.nil?
+                    return render status:400, json:{messaje:"Table not found #{params[:id]}"}
+                end
+                @table.players.each do |player|
+                    @players.push(player.id) 
+                end
+                @table.save
             end
 
             def login
