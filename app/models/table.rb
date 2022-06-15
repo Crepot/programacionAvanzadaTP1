@@ -11,7 +11,7 @@ class Table < ApplicationRecord
     enum winner: {X:0,O:1,'false':-1}
 
     before_create :default_values # Por defecto al crear un table lo inicializamos con los valores por defecto
-    before_commit :table_actions, on: :update
+    before_commit :table_actions, on: :update # before_update
 
     def default_values
         self.winner = -1
@@ -20,8 +20,9 @@ class Table < ApplicationRecord
     end
 
     def table_actions
+        #Necesito ver quien es el current
         #Ver si tengo algún ganador
-        p 'ESTAMOS VIENDO LAS ACCIONES DE LA TABLA ANTES DE COMMITEAR'
+        
         if checkWinner
             p 'TENEMOS UNGANADOR'
             self.statusGame = 3
@@ -42,7 +43,7 @@ class Table < ApplicationRecord
     def checkWinner
         #p 'ESTAS SON LAS POSICIONES[0]',  positions[moveNumber]
         p '//////////////////'
-
+         
         #HARDCODED
         
         #Primera fila
@@ -83,7 +84,7 @@ class Table < ApplicationRecord
             return true
         end
 
-        p 'NO ENCONTRAMOS GANADOR :('
+        p 'NO ENCONTRE GANADOR :('
         return false
     end
 
