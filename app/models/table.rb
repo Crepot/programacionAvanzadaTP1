@@ -6,86 +6,94 @@ class Table < ApplicationRecord
     has_many :positions, through: :tablePositions
 
     # Estados del tablero:
-
-    enum statusGame: {finalizado:3 ,'En curso':2 ,buscando:1 ,creado:0} #De esta forma yo le puedo poner el número que quiera
-    enum winner: {X:0,O:1,'false':-1}
+    enum status_game: {finalizado:2 ,jugando:1 , creado:0} #De esta forma yo le puedo poner el número que quiera
 
     before_create :default_values # Por defecto al crear un table lo inicializamos con los valores por defecto
-    before_commit :table_actions, on: :update # before_update
+
+
+    WINNER_POSITIONS = [
+        [0,1,2],
+        [3,4,5],
+        [6,7,8],
+        [0,3,6],
+        [1,4,7],
+        [2,5,8],
+        [0,4,8],
+        [2,4,6]
+    ]
+
 
     def default_values
         self.winner = -1
-        self.moveNumber = 0
-        self.statusGame = 0
+        self.move_number = 0
+        self.status_game = 0
     end
 
-    def table_actions
-        #Necesito ver quien es el current
-        #Ver si tengo algún ganador
-        
-        if checkWinner
-            p 'TENEMOS UNGANADOR'
-            self.statusGame = 3
-            self.winner = moveNumber.even? ? 'X' : 'O'
-        end
-        
+    def table_actions table
         #Ver si realice todos los movimientos
-        if self.moveNumber === 8
+        if table.move_number === 9
             #Actualizamos el estado
-            self.statusGame = 3
+            table.status_game = 2
         end
-        
+       
         #Actualizar el contador de jugadas
-        #self.moveNumber = self.moveNumber + 1
-        save
+        table.move_number = table.move_number + 1
     end
 
-    def checkWinner
-        #p 'ESTAS SON LAS POSICIONES[0]',  positions[moveNumber]
-        p '//////////////////'
-         
-        #HARDCODED
-        
-        #Primera fila
-        if positions[moveNumber].box0 === positions[moveNumber].box1 && positions[moveNumber].box0 === positions[moveNumber].box2 && positions[moveNumber].box0 != 0
-            return true
-        end
-        #Segunda fila
-        if positions[moveNumber].box3 === positions[moveNumber].box4 && positions[moveNumber].box3 === positions[moveNumber].box5 && positions[moveNumber].box3 != 0
-            return true
-        end
-        #Tercera fila
-        if positions[moveNumber].box6 === positions[moveNumber].box7 && positions[moveNumber].box6 === positions[moveNumber].box8 && positions[moveNumber].box6 != 0
-            return true
+
+    def checkWinner table
+
+        WINNER_POSITIONS.each do |winner|
+            #p 'ESTAS SON LAS POSISIONES WINNERS => ',winners
+            a,b,c = winner
+            if table.positions.select {|p| p.box === a && p.player_id === table.curret_player}.length > 0 && 
+                table.positions.select {|p| p.box === b && p.player_id === table.curret_player}.length > 0 &&
+                table.positions.select {|p| p.box === c && p.player_id === table.curret_player}.length > 0
+                    return true
+            end
         end
 
-        #Primera columna
-        if positions[moveNumber].box0 === positions[moveNumber].box3 && positions[moveNumber].box0 === positions[moveNumber].box6 && positions[moveNumber].box0 != 0
-            return true
-        end
-
-        #Segunda columna
-        if positions[moveNumber].box1 === positions[moveNumber].box4 && positions[moveNumber].box1 === positions[moveNumber].box7 && positions[moveNumber].box1 != 0
-            return true
-        end
-
-        #Tercera columna
-        if positions[moveNumber].box2 === positions[moveNumber].box5 && positions[moveNumber].box2 === positions[moveNumber].box8 && positions[moveNumber].box2 != 0
-            return true
-        end
-
-        #Diagonal principal
-        if positions[moveNumber].box0 === positions[moveNumber].box4 && positions[moveNumber].box0 === positions[moveNumber].box8 && positions[moveNumber].box0 != 0
-            return true
-        end
-
-        #Diagonal secundaria
-        if positions[moveNumber].box2 === positions[moveNumber].box4 && positions[moveNumber].box2 === positions[moveNumber].box6 && positions[moveNumber].box2 != 0
-            return true
-        end
-
-        p 'NO ENCONTRE GANADOR :('
+        #Actualizar el current player
+        next_player = table.player_ids.select {|id| id != table.curret_player}
+        table.curret_player = next_player[0]
         return false
+    end
+
+    
+    def verify_player player
+        #Necesito ver quien es el current y si el movimiento es del jugador current
+        p "VALIDACION DEL PLAYER ID CON EL CURRENT PLAYER => #{curret_player}, PLAYER ID => #{player.id} : #{curret_player === player.id} "
+        if curret_player != player.id
+            p "NO SOS EL PLAYER QUE TIENE QUE JUGAR BRO"
+            return false #El jugador no es el que debe jugar 401 unauth
+        end
+        return true
+    end
+
+
+    def verify_move (table, move)
+        #Ver que el movimiento sea válido (tiene que ser entre el 1 y el 9)
+        
+        if table.status_game === "finalizado"
+            return false #Juego finalizado
+        end
+
+        if move > 8 || move < 0
+            return false #Movimiento inválido, debe ser entre 0 y 8
+        end
+
+        #Ver que el movimiento sea sobre un casillero que no fue marcado
+        if table.positions.length > 0 #Primero veo que tenga posiciones para validar
+            p "ESTAS SON LAS POCISIONES QUE TENGO => #{table.positions.length}"
+            p "recorro todas las posiciones que tengo => #{table.positions.select {|pos| pos.box === move}}"
+                if table.positions.select {|pos| pos.box === move}.length > 0
+                    p "Este movimiento no es válido ya marcaron la casilla"
+                    return false # La casilla ya fue marcada
+                end
+            p "El movimiento es válido :) move:#{move}"
+        end
+        p "VALIDAMOS EL MOVIMIENTO :)"
+        return true
     end
 
 end

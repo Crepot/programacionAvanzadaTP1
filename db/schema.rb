@@ -15,7 +15,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_06_01_221506) do
     t.string "name"
     t.string "tokenAuth"
     t.boolean "sessionActive"
-    t.string "tokenTable"
     t.string "symbol"
     t.string "password"
     t.string "email"
@@ -26,15 +25,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_06_01_221506) do
   end
 
   create_table "positions", force: :cascade do |t|
-    t.integer "box0"
-    t.integer "box1"
-    t.integer "box2"
-    t.integer "box3"
-    t.integer "box4"
-    t.integer "box5"
-    t.integer "box6"
-    t.integer "box7"
-    t.integer "box8"
+    t.integer "box"
+    t.integer "player_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -58,10 +50,10 @@ ActiveRecord::Schema[7.0].define(version: 2022_06_01_221506) do
   end
 
   create_table "tables", force: :cascade do |t|
-    t.string "tableToken"
-    t.integer "statusGame"
+    t.integer "status_game"
     t.integer "winner"
-    t.integer "moveNumber"
+    t.integer "move_number"
+    t.integer "curret_player"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

@@ -4,7 +4,6 @@ class CreatePlayers < ActiveRecord::Migration[7.0]
       t.string :name # PlayerName
       t.string :tokenAuth # Token de auth
       t.boolean :sessionActive # Para validar si tiene una session activa o no
-      t.string :tokenTable # Token para interactuar con el tablero
       t.string :symbol # Simbolo otorgado al jugador
       t.string :password # Contraseña del jugador
       t.string :email # Email del
