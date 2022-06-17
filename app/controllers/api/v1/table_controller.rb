@@ -77,6 +77,12 @@ module Api
                 if @table.table_actions @table
                     @table.positions.push(Position.new(box:params[:move_number],player_id:@player.id))
                     p "Estas son las positions de la tabla #{@table.positions.length}"
+                    #debugger
+                    if @table.checkWinner @table
+                        @table.status_game = 2
+                        @table.winner = @player.id
+                    end
+
                     if @table.save
                         return render status:200, json:{table:@table} 
                     end

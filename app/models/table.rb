@@ -42,38 +42,48 @@ class Table < ApplicationRecord
             table.status_game = 2
         end
 
-        if table.move_number >4
-            if checkWinner table.positions
-                p 'TENEMOS UNGANADOR'
-                table.status_game = 2
-                table.winner = curret_player
-            end
-        end
+        # if table.move_number >4
+        #     if checkWinner table.positions
+        #         p 'TENEMOS UNGANADOR'
+        #         table.status_game = 2
+        #         table.winner = curret_player
+        #     end
+        # end
         
         #Actualizar el contador de jugadas
         table.move_number = table.move_number + 1
 
-        #Actualizar el current player
-        next_player = table.player_ids.select {|id| id != table.curret_player}
-        table.curret_player = next_player[0]
-        table.save
+        #table.save
     end
     #tabla.positions.push(pos) --> con esto me puedo guardar la posision creada
-    def checkWinner positions
+    def checkWinner table
         #p "estas son las pociciones => ", this.positions
         WINNER_POSITIONS.each do |winner|
             #p 'ESTAS SON LAS POSISIONES WINNERS => ',winners
             a,b,c = winner
-            #p "posisiones ganadoreas a: #{a}, b: #{b}, c: #{c}"
-            if positions[a] && positions[b] && positions[c]
-                p "posisiones ganadoreas a: #{positions[a].player_id}, b: #{positions[b].player_id}, c: #{positions[c].player_id}"
-                if positions[a].player_id === positions[b].player_id && positions[a].player_id === positions[c].player_id
-                    p "encontramos un ganador"
+            p "posisiones ganadoreas a: #{a}, b: #{b}, c: #{c}"
+            if table.positions.select {|p| p.box === a && p.player_id === table.curret_player}.length > 0 && 
+                table.positions.select {|p| p.box === b && p.player_id === table.curret_player}.length > 0 &&
+                table.positions.select {|p| p.box === c && p.player_id === table.curret_player}.length > 0
+                    "Encontré al ganador"
                     return true
-                end
-            end 
+            end
+
+
+
+            # TODO: Esta lógica está mal
+            # if positions[a] && positions[b] && positions[c]
+            #     p "posisiones ganadoreas    #{positions[a].player_id},    #{positions[b].player_id},    #{positions[c].player_id}"
+            #     if positions[a].player_id === positions[b].player_id && positions[a].player_id === positions[c].player_id
+            #         p "encontramos un ganador"
+            #         return true
+            #     end
+            # end 
         end
         p 'NO ENCONTRE GANADOR :('
+        #Actualizar el current player
+        next_player = table.player_ids.select {|id| id != table.curret_player}
+        table.curret_player = next_player[0]
         return false
     end
 
