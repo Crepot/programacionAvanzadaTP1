@@ -17,8 +17,11 @@ module Api
             #POST Create    
             def create
                 @table = Table.new(tableParams)
+                @table.curret_player = @player.id
+
                 p "ESTE ES EL PLAYER QUE TENGO #{@player}"
-                @table.assing_player @player
+
+                @table.players.push(@player)
                 if @table.save
                     #Crear la referencia al tablero 
                     render status:200, json:{table:@table} 
@@ -51,29 +54,36 @@ module Api
             end
 
             def assing_new_player
-                if @table.assing_player @player
-                    if @table.save
-                        #Crear la referencia al tablero 
-                        render status:200, json:{table:@table} 
-                    else
-                        render status:400, json:{messaje:@table.errors.details}
-                    end
-                end
-                render status:405, json:{messaje:'Table is full'}
+                @table.players.push(@player)
+                if @table.save
+                    render status:200, json:{table:@table}
+                else
+                    render status:400, json:{table:@table.errors.details}
+
+                end 
+
             end
 
             def move
 
-                if @table.verify_move(params[:move_number],@player)  #Si cumple las validaciones lo guardo
-                    @position = Position.new(box:params[:move_number],player_id:@player.id)
-                    p "esta es la @position creada => @position #{@position}"
-                    @table.positions.push(@position)
+                if !@table.verify_player @player #Verificamos que sea el turno del jugador 
+                    return render status:400, json:{messaje:'Invalid Move, wait your turn'}
+                end
+
+                if !@table.verify_move(@table, params[:move_number]) #Verificamos que el movimiento sea permitido
+                    return render status:400, json:{messaje:'Invalid Move'}                    
+                end
+
+                if @table.table_actions @table
+                    @table.positions.push(Position.new(box:params[:move_number],player_id:@player.id))
+                    p "Estas son las positions de la tabla #{@table.positions.length}"
                     if @table.save
                         return render status:200, json:{table:@table} 
                     end
                     render status:400, json:{messaje:@player.errors.details}
                 end
-                render status:401, json:{messaje:'Invalid Move'}
+
+
             end
 
             #Metodos
@@ -87,7 +97,7 @@ module Api
             #Recuperar el Tablero de la base de datos    
             def setTable
                 @table = Table.find_by(id: params[:id]|| params[:table_id])
-                if @table.blank?
+                if @table.nil?
                     render status:400, json:{messaje:"Table not found #{params[:id]}"}
                     false
                 end

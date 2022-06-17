@@ -53,7 +53,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_06_01_221506) do
     t.integer "status_game"
     t.integer "winner"
     t.integer "move_number"
-    t.integer "cuerret_player"
+    t.integer "curret_player"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

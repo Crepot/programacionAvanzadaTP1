@@ -8,10 +8,9 @@ class Table < ApplicationRecord
     # Estados del tablero:
 
     enum status_game: {finalizado:2 ,jugando:1 , creado:0} #De esta forma yo le puedo poner el número que quiera
-    enum winner: {X:0,O:1,'false':-1}
 
     before_create :default_values # Por defecto al crear un table lo inicializamos con los valores por defecto
-    before_commit :table_actions, on: :update # before_update
+    # before_commit :table_actions, on: :update # before_update
 
     WINNER_POSITIONS = [
         [0,1,2],
@@ -32,36 +31,42 @@ class Table < ApplicationRecord
         self.winner = -1
         self.move_number = 0
         self.status_game = 0
-        self.cuerret_player = 0
     end
 
-    def table_actions
+    def table_actions table
         p "ESTOY EJECUTANDO LAS TABLE_ACTIONS"
         #Ver si tengo algún ganador
-        if checkWinner
-            p 'TENEMOS UNGANADOR'
-            self.status_game = 2
-            self.winner = cuerret_player
-        end
-        
         #Ver si realice todos los movimientos
-        if self.move_number === 9
+        if table.move_number === 9
             #Actualizamos el estado
-            self.status_game = 3
+            table.status_game = 2
+        end
+
+        if table.move_number >4
+            if checkWinner table.positions
+                p 'TENEMOS UNGANADOR'
+                table.status_game = 2
+                table.winner = curret_player
+            end
         end
         
         #Actualizar el contador de jugadas
-        #self.move_number = self.move_number + 1
-        save
+        table.move_number = table.move_number + 1
+
+        #Actualizar el current player
+        next_player = table.player_ids.select {|id| id != table.curret_player}
+        table.curret_player = next_player[0]
+        table.save
     end
     #tabla.positions.push(pos) --> con esto me puedo guardar la posision creada
-    def checkWinner
+    def checkWinner positions
         #p "estas son las pociciones => ", this.positions
         WINNER_POSITIONS.each do |winner|
             #p 'ESTAS SON LAS POSISIONES WINNERS => ',winners
             a,b,c = winner
-            #p "a: #{a}, b: #{b}, c: #{c}"
+            #p "posisiones ganadoreas a: #{a}, b: #{b}, c: #{c}"
             if positions[a] && positions[b] && positions[c]
+                p "posisiones ganadoreas a: #{positions[a].player_id}, b: #{positions[b].player_id}, c: #{positions[c].player_id}"
                 if positions[a].player_id === positions[b].player_id && positions[a].player_id === positions[c].player_id
                     p "encontramos un ganador"
                     return true
@@ -69,42 +74,40 @@ class Table < ApplicationRecord
             end 
         end
         p 'NO ENCONTRE GANADOR :('
-        #return false
+        return false
     end
 
-    def assing_player player
-        if players.length > 2
-            return false
-        end
-        players.push(player)
-    end
-
-    def start_game
-        if players.length
-            status_game = 1
-        end
-
-    end
     
-    def verify_move(move,player)
+    def verify_player player
         #Necesito ver quien es el current y si el movimiento es del jugador current
-        p "estos son los args => move: #{move}, player: #{player.name}"
-        if !cuerret_player === player.id
+        p "VALIDACION DEL PLAYER ID CON EL CURRENT PLAYER => #{curret_player}, PLAYER ID => #{player.id} : #{curret_player === player.id} "
+        if curret_player != player.id
+            p "NO SOS EL PLAYER QUE TIENE QUE JUGAR BRO"
             return false #El jugador no es el que debe jugar 401 unauth
         end
+        return true
+    end
 
+
+    def verify_move (table, move)
+        p "estos son los args => move: #{move}, "
         #Ver que el movimiento sea válido (tiene que ser entre el 1 y el 9)
+
         if move > 8 || move < 0
             return false #Movimiento inválido, debe ser entre 0 y 8
         end
 
         #Ver que el movimiento sea sobre un casillero que no fue marcado
-        if positions.length > 0 #Primero veo que tenga posiciones para validar
-            if !positions[move] === 0
-                return false # La casilla ya fue marcada
-            end
+        if table.positions.length > 0 #Primero veo que tenga posiciones para validar
+            p "ESTAS SON LAS POCISIONES QUE TENGO => #{table.positions.length}"
+            p "recorro todas las posiciones que tengo => #{table.positions.select {|pos| pos.box === move}}"
+                if table.positions.select {|pos| pos.box === move}.length > 0
+                    p "Este movimiento no es válido ya marcaron la casilla"
+                    return false # La casilla ya fue marcada
+                end
+            p "El movimiento es válido :) move:#{move}"
         end
-
+        p "VALIDAMOS EL MOVIMIENTO :)"
         return true
     end
 
