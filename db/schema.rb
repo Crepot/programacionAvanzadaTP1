@@ -50,7 +50,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_06_01_221506) do
   end
 
   create_table "tables", force: :cascade do |t|
-    t.integer "statusGame"
+    t.integer "status_game"
     t.integer "winner"
     t.integer "moveNumber"
     t.integer "cuerret_player"

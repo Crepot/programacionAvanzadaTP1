@@ -7,7 +7,7 @@ class Table < ApplicationRecord
 
     # Estados del tablero:
 
-    enum statusGame: {finalizado:2 ,jugando:1 , creado:0} #De esta forma yo le puedo poner el número que quiera
+    enum status_game: {finalizado:2 ,jugando:1 , creado:0} #De esta forma yo le puedo poner el número que quiera
     enum winner: {X:0,O:1,'false':-1}
 
     before_create :default_values # Por defecto al crear un table lo inicializamos con los valores por defecto
@@ -31,7 +31,7 @@ class Table < ApplicationRecord
     def default_values
         self.winner = -1
         self.moveNumber = 0
-        self.statusGame = 0
+        self.status_game = 0
         self.cuerret_player = 0
     end
 
@@ -45,14 +45,14 @@ class Table < ApplicationRecord
         #Ver si tengo algún ganador
         if checkWinner
             p 'TENEMOS UNGANADOR'
-            self.statusGame = 2
+            self.status_game = 2
             self.winner = cuerret_player
         end
         
         #Ver si realice todos los movimientos
         if self.moveNumber === 9
             #Actualizamos el estado
-            self.statusGame = 3
+            self.status_game = 3
         end
         
         #Actualizar el contador de jugadas
@@ -83,4 +83,18 @@ class Table < ApplicationRecord
         return false
     end
 
+    def assing_player player
+        if players.length > 2
+            p 'la tabla está llena'
+            return false
+        end
+    players.push(player)
+    end
+
+    def start_game
+        if players.length
+            status_game = 1
+        end
+
+    end
 end

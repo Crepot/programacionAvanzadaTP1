@@ -8,7 +8,7 @@ Rails.application.routes.draw do
       resources :table do
         #resources :positions, only: [:show]
         resources :positions, only: [:index]
-        resources :players, to: 'players#assigned' #MAL
+        patch 'player/', to: 'table#assing_new_player'
       end
       resources :positions
       #resources :positions, except: [:update] 
