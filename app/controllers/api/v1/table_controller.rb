@@ -19,8 +19,6 @@ module Api
                 @table = Table.new(tableParams)
                 @table.curret_player = @player.id
 
-                p "ESTE ES EL PLAYER QUE TENGO #{@player}"
-
                 @table.players.push(@player)
                 if @table.save
                     #Crear la referencia al tablero 
@@ -59,7 +57,6 @@ module Api
                     render status:200, json:{table:@table}
                 else
                     render status:400, json:{table:@table.errors.details}
-
                 end 
 
             end
