@@ -51,7 +51,7 @@ module Api
                     return false
                 end
                 @position = Position.find_by(id:params[:id])
-                #p 'estas son las posiciones => ',@position.positions[moveNumber]
+                #p 'estas son las posiciones => ',@position.positions[move_number]
                 if @position.nil?
                     render status:400, json:{messaje:"Positions not found"}
                     false

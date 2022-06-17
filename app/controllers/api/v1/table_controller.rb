@@ -6,7 +6,7 @@ module Api
             before_action :authentication
 
             before_action :setPlayer
-            before_action :setTable, only: [:show, :update, :destroy, :assing_new_player]
+            before_action :setTable, only: [:show, :update, :destroy, :assing_new_player,:move]
 
             #GET All
             def index
@@ -61,12 +61,27 @@ module Api
                 end
                 render status:405, json:{messaje:'Table is full'}
             end
+
+            def move
+
+                if @table.verify_move(params[:move_number],@player)  #Si cumple las validaciones lo guardo
+                    @position = Position.new(box:params[:move_number],player_id:@player.id)
+                    p "esta es la @position creada => @position #{@position}"
+                    @table.positions.push(@position)
+                    if @table.save
+                        return render status:200, json:{table:@table} 
+                    end
+                    render status:400, json:{messaje:@player.errors.details}
+                end
+                render status:401, json:{messaje:'Invalid Move'}
+            end
+
             #Metodos
             private
 
             #Strong params
             def tableParams
-                params.require(:table).permit(:tableToken,:status_game,:winner,:moveNumber, :playerId,)
+                params.require(:table).permit(:tableToken,:status_game,:winner,:move_number)
             end
 
             #Recuperar el Tablero de la base de datos    
@@ -81,6 +96,9 @@ module Api
 
             def setPlayer
                 @player = Player.find_by(id: authenticate_player)
+                if @player.nil?
+                   return head :unauthorized
+                end
                 return @player
             end
 

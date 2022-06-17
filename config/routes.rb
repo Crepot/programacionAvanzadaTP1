@@ -9,6 +9,7 @@ Rails.application.routes.draw do
         #resources :positions, only: [:show]
         resources :positions, only: [:index]
         patch 'player/', to: 'table#assing_new_player'
+        post 'player/', to: 'table#move' #Esto sería el movimiento del player sobre el tablero
       end
       resources :positions
       #resources :positions, except: [:update] 

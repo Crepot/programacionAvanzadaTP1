@@ -30,18 +30,13 @@ class Table < ApplicationRecord
 
     def default_values
         self.winner = -1
-        self.moveNumber = 0
+        self.move_number = 0
         self.status_game = 0
         self.cuerret_player = 0
     end
 
     def table_actions
-        #Necesito ver quien es el current y si el movimiento es del jugador current
-
-        #Ver que el movimiento sea válido (tiene que ser entre el 1 y el 9)
-
-        #Ver que el movimiento sea sobre un casillero que no fue marcado
-
+        p "ESTOY EJECUTANDO LAS TABLE_ACTIONS"
         #Ver si tengo algún ganador
         if checkWinner
             p 'TENEMOS UNGANADOR'
@@ -50,13 +45,13 @@ class Table < ApplicationRecord
         end
         
         #Ver si realice todos los movimientos
-        if self.moveNumber === 9
+        if self.move_number === 9
             #Actualizamos el estado
             self.status_game = 3
         end
         
         #Actualizar el contador de jugadas
-        #self.moveNumber = self.moveNumber + 1
+        #self.move_number = self.move_number + 1
         save
     end
     #tabla.positions.push(pos) --> con esto me puedo guardar la posision creada
@@ -73,22 +68,15 @@ class Table < ApplicationRecord
                 end
             end 
         end
-
-        positions.each do |pos|
-            #p "estas son las pociciones ==> pos: ",pos.box, "player_id: ",pos.player_id
-            
-        end
-        
         p 'NO ENCONTRE GANADOR :('
-        return false
+        #return false
     end
 
     def assing_player player
         if players.length > 2
-            p 'la tabla está llena'
             return false
         end
-    players.push(player)
+        players.push(player)
     end
 
     def start_game
@@ -97,4 +85,27 @@ class Table < ApplicationRecord
         end
 
     end
+    
+    def verify_move(move,player)
+        #Necesito ver quien es el current y si el movimiento es del jugador current
+        p "estos son los args => move: #{move}, player: #{player.name}"
+        if !cuerret_player === player.id
+            return false #El jugador no es el que debe jugar 401 unauth
+        end
+
+        #Ver que el movimiento sea válido (tiene que ser entre el 1 y el 9)
+        if move > 8 || move < 0
+            return false #Movimiento inválido, debe ser entre 0 y 8
+        end
+
+        #Ver que el movimiento sea sobre un casillero que no fue marcado
+        if positions.length > 0 #Primero veo que tenga posiciones para validar
+            if !positions[move] === 0
+                return false # La casilla ya fue marcada
+            end
+        end
+
+        return true
+    end
+
 end
