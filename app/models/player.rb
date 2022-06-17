@@ -6,7 +6,6 @@ class Player < ApplicationRecord
     before_create :default_values # Por defecto al crear un player lo inicializamos sin symbol y con sessionActive en false para que se logee
     def default_values
         self.tokenAuth =''
-        self.tokenTable = ''
         self.symbol = ''
         self.sessionActive = false
         self.score = 0

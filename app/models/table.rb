@@ -7,7 +7,7 @@ class Table < ApplicationRecord
 
     # Estados del tablero:
 
-    enum statusGame: {finalizado:3 ,'En curso':2 ,buscando:1 ,creado:0} #De esta forma yo le puedo poner el número que quiera
+    enum statusGame: {finalizado:2 ,jugando:1 , creado:0} #De esta forma yo le puedo poner el número que quiera
     enum winner: {X:0,O:1,'false':-1}
 
     before_create :default_values # Por defecto al crear un table lo inicializamos con los valores por defecto
@@ -17,10 +17,16 @@ class Table < ApplicationRecord
         self.winner = -1
         self.moveNumber = 0
         self.statusGame = 0
+        self.cuerret_player = 0
     end
 
     def table_actions
-        #Necesito ver quien es el current
+        #Necesito ver quien es el current y si el movimiento es del jugador current
+
+        #Ver que el movimiento sea válido (tiene que ser entre el 1 y el 9)
+
+        #Ver que el movimiento sea sobre un casillero que no fue marcado
+
         #Ver si tengo algún ganador
         
         if checkWinner
@@ -30,7 +36,7 @@ class Table < ApplicationRecord
         end
         
         #Ver si realice todos los movimientos
-        if self.moveNumber === 8
+        if self.moveNumber === 9
             #Actualizamos el estado
             self.statusGame = 3
         end
@@ -41,49 +47,6 @@ class Table < ApplicationRecord
     end
 
     def checkWinner
-        #p 'ESTAS SON LAS POSICIONES[0]',  positions[moveNumber]
-        p '//////////////////'
-         
-        #HARDCODED
-        
-        #Primera fila
-        if positions[moveNumber].box0 === positions[moveNumber].box1 && positions[moveNumber].box0 === positions[moveNumber].box2 && positions[moveNumber].box0 != 0
-            return true
-        end
-        #Segunda fila
-        if positions[moveNumber].box3 === positions[moveNumber].box4 && positions[moveNumber].box3 === positions[moveNumber].box5 && positions[moveNumber].box3 != 0
-            return true
-        end
-        #Tercera fila
-        if positions[moveNumber].box6 === positions[moveNumber].box7 && positions[moveNumber].box6 === positions[moveNumber].box8 && positions[moveNumber].box6 != 0
-            return true
-        end
-
-        #Primera columna
-        if positions[moveNumber].box0 === positions[moveNumber].box3 && positions[moveNumber].box0 === positions[moveNumber].box6 && positions[moveNumber].box0 != 0
-            return true
-        end
-
-        #Segunda columna
-        if positions[moveNumber].box1 === positions[moveNumber].box4 && positions[moveNumber].box1 === positions[moveNumber].box7 && positions[moveNumber].box1 != 0
-            return true
-        end
-
-        #Tercera columna
-        if positions[moveNumber].box2 === positions[moveNumber].box5 && positions[moveNumber].box2 === positions[moveNumber].box8 && positions[moveNumber].box2 != 0
-            return true
-        end
-
-        #Diagonal principal
-        if positions[moveNumber].box0 === positions[moveNumber].box4 && positions[moveNumber].box0 === positions[moveNumber].box8 && positions[moveNumber].box0 != 0
-            return true
-        end
-
-        #Diagonal secundaria
-        if positions[moveNumber].box2 === positions[moveNumber].box4 && positions[moveNumber].box2 === positions[moveNumber].box6 && positions[moveNumber].box2 != 0
-            return true
-        end
-
         p 'NO ENCONTRE GANADOR :('
         return false
     end

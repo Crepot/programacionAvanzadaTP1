@@ -14,13 +14,7 @@ module Api
 
             #POST Create    
             def create
-                setPlayer
-                positions = []
-                for i in 0..8 do
-                    p = Position.new()
-                    positions.push(p)
-                end
-                @table = Table.new(tableParams.merge(:positions => positions,:players => [@player]))
+                @table = Table.new(tableParams)
                 if @table.save
                     #Crear la referencia al tablero 
                     render status:200, json:{table:@table}
@@ -37,18 +31,6 @@ module Api
 
             #PUT update
             def update
-                #debugger
-                if tableParams[:playerId]
-                    assingPlayer
-                    @table.players = @table.players.merge(@players) 
-                    if @table.update(players: @players)
-                    #if !@table.save
-                        render status:200, json:{table:@table}
-                    else
-                        render status:400, json:{messaje:@table.errors.details}
-                    end
-                else
-
                     if @table.update(tableParams)
                         render status:200, json:{table:@table}
                     else
@@ -69,9 +51,9 @@ module Api
             #Metodos
             private
 
-            #Strong params: Me sirve para permitir única mente los parámetros que yo quiera en las request
+            #Strong params
             def tableParams
-                params.require(:table).permit(:tableToken,:statusGame,:winner,:moveNumber, :playerId,:positions => [])
+                params.require(:table).permit(:tableToken,:statusGame,:winner,:moveNumber, :playerId,)
             end
 
             #Recuperar el Tablero de la base de datos    
@@ -83,23 +65,11 @@ module Api
                 end
             end 
     
-            def assingPlayer
-                @players = []
-                @players.push(Player.find_by(id: @table.players[0].id))
-                player = Player.find_by(id: tableParams[:playerId])
-                if player
-                    !player.symbol = 'O'
-                    @players.push(player)
-                    !@table.statusGame = 2
-                else
-                    render status:400, json:{messaje:"player not found #{tableParams[:players][i][:id]}"}
-                    false
-                end
+            def assing_new_player
             end
 
             def setPlayer
                 @player = Player.find_by(id: authenticate_player)
-                !@player.symbol = 'X'
                 return @player
             end
 
