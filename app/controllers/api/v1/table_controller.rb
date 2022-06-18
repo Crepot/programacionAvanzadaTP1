@@ -16,6 +16,8 @@ module Api
 
             #POST Create    
             def create
+                #Los players que crean la partida les asigno el simbolo 'X'
+                @player.symbol ='X'
                 @table = Table.new(tableParams)
                 @table.curret_player = @player.id
 
@@ -30,7 +32,8 @@ module Api
 
             #GET One
             def show
-                render status:200, json:{table:@table} 
+                # OJO, ACÁ NO DEBERÍA ENVIAR EL PLAYER COMPLETO, SOLAMENTE LO QUE NECESITO PARA EL FRONT Y NAMAS
+                render status:200, json:{table:@table, players:@table.players, positions:@table.positions} 
             end
 
             #PUT update
@@ -52,6 +55,8 @@ module Api
             end
 
             def assing_new_player
+                #Los players que se unen a la partida les asigno el simbolo 'O'
+                @player.symbol = 'O'
                 @table.players.push(@player)
                 if @table.save
                     render status:200, json:{table:@table}
@@ -62,7 +67,6 @@ module Api
             end
 
             def move
-
                 if !@table.verify_player @player #Verificamos que sea el turno del jugador 
                     return render status:400, json:{messaje:'Invalid Move, wait your turn'}
                 end
@@ -81,7 +85,7 @@ module Api
                     end
 
                     if @table.save
-                        return render status:200, json:{table:@table} 
+                        return render status:200, json:{table:@table, positions:@table.positions} 
                     end
                     render status:400, json:{messaje:@player.errors.details}
                 end
@@ -94,7 +98,7 @@ module Api
 
             #Strong params
             def tableParams
-                params.require(:table).permit(:tableToken,:status_game,:winner,:move_number)
+                params.require(:table).permit(:tableToken,:status_game,:winner,:move_number,:curret_player)
             end
 
             #Recuperar el Tablero de la base de datos    
