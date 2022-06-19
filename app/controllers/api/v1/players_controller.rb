@@ -57,9 +57,11 @@ module Api
         
             #Recuperar el player de la base de datos    
             def setPlayer
-                #Esto lo tengo que hacer con el método auth que me devuelve el token
-                #TODO: CAMBIAR ACÁ
-                return render status:400, json:{messaje:@player.errors.details}
+                @player = Player.find_by(id: authenticate_player)
+                if @player.nil?
+                   return head :unauthorized
+                end
+                return @player
             end 
 
             def authentication
