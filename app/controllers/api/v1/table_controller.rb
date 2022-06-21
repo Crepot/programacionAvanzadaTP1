@@ -38,11 +38,11 @@ module Api
 
             #PUT update
             def update
-                    if @table.update(tableParams)
-                        render status:200, json:{table:@table}
-                    else
-                        render status:400, json:{messaje:@table.errors.details}
-                    end
+                if @table.update(tableParams)
+                    render status:200, json:{table:@table}
+                else
+                    render status:400, json:{messaje:@table.errors.details}
+                end
             end
 
             #DELETE destroy

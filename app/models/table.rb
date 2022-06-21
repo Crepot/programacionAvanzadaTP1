@@ -31,7 +31,7 @@ class Table < ApplicationRecord
 
     def table_actions table
         #Ver si realice todos los movimientos
-        if table.move_number === 9
+        if table.move_number === 8
             #Actualizamos el estado
             table.status_game = 2
         end
@@ -62,7 +62,6 @@ class Table < ApplicationRecord
     
     def verify_player player
         #Necesito ver quien es el current y si el movimiento es del jugador current
-        p "VALIDACION DEL PLAYER ID CON EL CURRENT PLAYER => #{curret_player}, PLAYER ID => #{player.id} : #{curret_player === player.id} "
         if curret_player != player.id
             p "NO SOS EL PLAYER QUE TIENE QUE JUGAR BRO"
             return false #El jugador no es el que debe jugar 401 unauth
@@ -84,15 +83,10 @@ class Table < ApplicationRecord
 
         #Ver que el movimiento sea sobre un casillero que no fue marcado
         if table.positions.length > 0 #Primero veo que tenga posiciones para validar
-            p "ESTAS SON LAS POCISIONES QUE TENGO => #{table.positions.length}"
-            p "recorro todas las posiciones que tengo => #{table.positions.select {|pos| pos.box === move}}"
                 if table.positions.select {|pos| pos.box === move}.length > 0
-                    p "Este movimiento no es válido ya marcaron la casilla"
                     return false # La casilla ya fue marcada
                 end
-            p "El movimiento es válido :) move:#{move}"
         end
-        p "VALIDAMOS EL MOVIMIENTO :)"
         return true
     end
 
